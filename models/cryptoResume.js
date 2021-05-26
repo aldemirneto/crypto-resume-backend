@@ -6,7 +6,10 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        cryptoId: DataTypes.INTEGER,
+        cryptoId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         balance: DataTypes.FLOAT,
         averagePrice: DataTypes.FLOAT
     }, {
@@ -16,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     CryptoResume.associate = (models) => {
         CryptoResume.belongsTo(models.Crypto, {
             foreignKey: 'cryptoId',
+            allowNull: false,
             as: 'crypto'
         })
     }

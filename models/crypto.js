@@ -14,10 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     })
     Crypto.associate = (models) => {
         Crypto.hasOne(models.CryptoResume, {
-            as: 'cryptoResume'
+            as: 'cryptoResume',
+            foreignKey: 'cryptoId'
         })
-        //Crypto.hasMany(models.Deposits)
-        //Crypto.hasMany(models.Withdrawals)
+        Crypto.hasMany(models.Deposits)
+        Crypto.hasMany(models.Withdrawals)
     }
     return Crypto
 }

@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         cryptoId: DataTypes.INTEGER,
         amount: DataTypes.FLOAT,
         price: DataTypes.FLOAT,
+        totalPrice: DataTypes.FLOAT,
         depositDate: DataTypes.DATE
     }, {
         timestamps: false,

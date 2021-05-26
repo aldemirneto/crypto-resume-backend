@@ -16,20 +16,33 @@ router.get('/', (_, res, next) => {
     }))
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', (req, res, _) => {
     const {
         description,
-        symbol
+        symbol,
+        balance,
+        averagePrice
     } = req.body
     model.Crypto.create({
         description: description,
         symbol: symbol
     })
-    .then(crypto => res.status(201).json({
-        error: false,
-        data: crypto,
-        message: 'Nova criptomoeda adicionada'
-    }))
+    .then(async crypto => {
+        await model.CryptoResume.create({
+            cryptoId: crypto.id,
+            balance: balance,
+            averagePrice: averagePrice
+        })
+        .then(crypto => res.status(201).json({
+            error: false,
+            data: crypto
+        }))
+        .catch(error => res.json({
+            error: true,
+            data: [],
+            error: error
+        }))
+    })
     .catch(error => res.json({
         error: true,
         data: [],
@@ -38,7 +51,7 @@ router.post('/', (req, res, next) => {
 })
 
 router.put('/:id', (req, res, next) => {
-    const cryptoId = req.params.id
+    const id = req.params.id
     const {
         description,
         symbol
@@ -48,10 +61,10 @@ router.put('/:id', (req, res, next) => {
         symbol: symbol
     }, {
         where: {
-            id: cryptoId
+            id: id
         }
     })
-    .then(crypto => res.status(201).json({
+    .then(_ => res.status(201).json({
         error: false,
         message: 'Criptomoeda alterada'
     }))

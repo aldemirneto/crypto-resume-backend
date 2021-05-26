@@ -1,6 +1,6 @@
 'use strict'
 module.exports = (sequelize, DataTypes) => {
-    const WithDrawals = sequelize.define('WithDrawals', {
+    const Withdrawals = sequelize.define('Withdrawals', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -13,11 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false,
         freezeTableName: true
     })
-    WithDrawals.associate = (models) => {
-        WithDrawals.belongsTo(models.Crypto, {
+    Withdrawals.associate = (models) => {
+        Withdrawals.belongsTo(models.Crypto, {
             foreignKey: 'cryptoId',
             as: 'crypto'
         })
     }
-    return WithDrawals
+    return Withdrawals
 }
