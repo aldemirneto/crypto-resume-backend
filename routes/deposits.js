@@ -20,7 +20,7 @@ const calculaDeposito = async (cryptoId) => {
         await model.CryptoResume.update({
             cryptoId: cryptoId,
             balance: sumAmount,
-            averagePrice: sumTotalPrice / sumAmount
+            averagePrice: sumAmount == 0 ? 0 : sumTotalPrice / sumAmount
         }, {
             where: {
                 cryptoId: cryptoId
@@ -124,6 +124,24 @@ router.put('/:id', (req,res, _) => {
     }))
 })
 
-
+router.get('/', (_, res, next) => {
+    model.Deposits.findAll({
+        include: 'crypto'
+    })
+    .then(deposits => {
+        const removeDataValues = deposits.map(obj => {return obj.dataValues})
+        const objetoTratado = removeDataValues.map(obj => {
+            obj.symbol = obj.crypto.dataValues.symbol
+            delete obj.crypto
+            return obj
+        })
+        res.json (objetoTratado)
+    })
+    .catch(error => res.json ({
+        error: true,
+        data: [],
+        error: error
+    }))
+})
 
 module.exports = router

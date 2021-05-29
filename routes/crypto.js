@@ -5,10 +5,7 @@ var model = require('../models/index')
 
 router.get('/', (_, res, next) => {
     model.Crypto.findAll({})
-    .then(cryptos => res.json ({
-        error: false,
-        data: cryptos
-    }))
+    .then(cryptos => res.json (cryptos))
     .catch(error => res.json ({
         error: true,
         data: [],
@@ -19,9 +16,7 @@ router.get('/', (_, res, next) => {
 router.post('/', (req, res, _) => {
     const {
         description,
-        symbol,
-        balance,
-        averagePrice
+        symbol
     } = req.body
     model.Crypto.create({
         description: description,
@@ -30,8 +25,8 @@ router.post('/', (req, res, _) => {
     .then(async crypto => {
         await model.CryptoResume.create({
             cryptoId: crypto.id,
-            balance: balance,
-            averagePrice: averagePrice
+            balance: 0,
+            averagePrice: 0
         })
         .then(crypto => res.status(201).json({
             error: false,
@@ -77,10 +72,7 @@ router.put('/:id', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
     const cryptoId = req.params.id
     model.Crypto.findByPk(cryptoId)
-    .then(crypto => res.json ({
-        error: false,
-        data: crypto
-    }))
+    .then(crypto => res.json(crypto))
     .catch(error => res.json ({
         error: true,
         error: error

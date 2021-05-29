@@ -81,4 +81,24 @@ router.delete('/:id', (req, res, _) => {
     }))
 })
 
+router.get('/', (_, res, next) => {
+    model.Withdrawals.findAll({
+        include: 'crypto'
+    })
+    .then(Withdrawals => {
+        const removeDataValues = Withdrawals.map(obj => {return obj.dataValues})
+        const objetoTratado = removeDataValues.map(obj => {
+            obj.symbol = obj.crypto.dataValues.symbol
+            delete obj.crypto
+            return obj
+        })
+        res.json (objetoTratado)
+    })
+    .catch(error => res.json ({
+        error: true,
+        data: [],
+        error: error
+    }))
+})
+
 module.exports = router
