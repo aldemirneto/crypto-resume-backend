@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const axios = require('axios').default
 const coinGecko = require('coingecko-api')
 
 const model = require('../models/index')

@@ -9,6 +9,7 @@ var cryptoRouter = require('./routes/crypto');
 var cryptoResumeRouter = require('./routes/cryptoResume');
 var depositsRouter = require('./routes/deposits');
 var withdrawalsRouter = require('./routes/withdrawals')
+var rewardsRouter = require('./routes/rewards')
 var panelRouter = require('./routes/panel')
 
 var app = express();
@@ -37,6 +38,7 @@ app.use('/cryptoresume', cryptoResumeRouter)
 app.use('/deposits', depositsRouter)
 app.use('/withdrawals', withdrawalsRouter)
 app.use('/panel', panelRouter)
+app.use('/rewards', rewardsRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

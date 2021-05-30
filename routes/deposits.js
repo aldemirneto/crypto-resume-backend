@@ -10,29 +10,55 @@ const calculaDeposito = async (cryptoId) => {
         }
     })
     .then(async deposits => {
-        let sumTotalPrice = 0, sumAmount = 0
-        for(i = 0; i < deposits.length; i++) {
-            sumTotalPrice += deposits[i].totalPrice
-        }
-        for(i = 0; i < deposits.length; i++) {
-            sumAmount += deposits[i].amount
-        }
-        await model.CryptoResume.update({
-            cryptoId: cryptoId,
-            balance: sumAmount,
-            averagePrice: sumAmount == 0 ? 0 : sumTotalPrice / sumAmount
-        }, {
+        await model.Rewards.findAll({
             where: {
-                cryptoId: cryptoId
+                cryptoId
             }
         })
-        .then(_ => {
-            return false
+        .then(async rewards => {
+            await model.Withdrawals.findAll({
+                where: {
+                    cryptoId
+                }
+            })
+            .then(async withdrawals => {
+                let sumTotalPrice = 0, sumDepositAmount = 0, sumRewardsAmount = 0, sumWithdrawalAmount = 0
+                for(i = 0; i < deposits.length; i++) {
+                    sumTotalPrice += deposits[i].totalPrice
+                }
+                for(i = 0; i < deposits.length; i++) {
+                    sumDepositAmount += deposits[i].amount
+                }
+                for(i = 0; i < rewards.length; i++) {
+                    sumRewardsAmount += rewards[i].amount
+                }
+                for(i = 0; i < withdrawals.length; i++) {
+                    sumWithdrawalAmount += withdrawals[i].amount
+                }
+                await model.CryptoResume.update({
+                    cryptoId: cryptoId,
+                    balance: (sumRewardsAmount + sumDepositAmount - sumWithdrawalAmount),
+                    averagePrice: sumDepositAmount == 0 ? 0 : sumTotalPrice / (sumRewardsAmount + sumDepositAmount - sumWithdrawalAmount)
+                }, {
+                    where: {
+                        cryptoId: cryptoId
+                    }
+                })
+                .then(_ => {
+                    return false
+                })
+                .catch(error => {
+                    return error
+                })
+            })
+            .catch(error => {
+                return error
+            })
         })
         .catch(error => {
             return error
         })
-    })
+    })  
     .catch(error => {
         return error
     })  

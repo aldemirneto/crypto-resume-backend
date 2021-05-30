@@ -3,32 +3,62 @@ var router = express.Router()
 
 var model = require('../models/index')
 
-const calculaBalance = async (cryptoId, amount) => {
-    await model.CryptoResume.findOne({
+const calculaBalance = async (cryptoId) => {
+    await model.Deposits.findAll({
         where: {
-            cryptoId
+            cryptoId: cryptoId
         }
     })
-    .then(async resume => {
-        const newBalance = resume.balance - amount
-        await model.CryptoResume.update({
-            balance: newBalance
-        }, {
+    .then(async deposits => {
+        await model.Rewards.findAll({
             where: {
                 cryptoId
             }
         })
-        .then(_ => {
-            return false
+        .then(async rewards => {
+            await model.Withdrawals.findAll({
+                where: {
+                    cryptoId
+                }
+            })
+            .then(async withdrawals => {
+                let sumDepositAmount = 0, sumRewardsAmount = 0, sumWithdrawalAmount = 0
+                for(i = 0; i < deposits.length; i++) {
+                    sumDepositAmount += deposits[i].amount
+                }
+                for(i = 0; i < rewards.length; i++) {
+                    sumRewardsAmount += rewards[i].amount
+                }
+                for(i = 0; i < withdrawals.length; i++) {
+                    sumWithdrawalAmount += withdrawals[i].amount
+                }
+                await model.CryptoResume.update({
+                    cryptoId: cryptoId,
+                    balance: (sumRewardsAmount + sumDepositAmount - sumWithdrawalAmount),
+                }, {
+                    where: {
+                        cryptoId: cryptoId
+                    }
+                })
+                .then(_ => {
+                    return false
+                })
+                .catch(error => {
+                    return error
+                })
+            })
+            .catch(error => {
+                return error
+            })
         })
         .catch(error => {
             return error
         })
-    })
+    })  
     .catch(error => {
         return error
-    }) 
-}
+    })  
+} 
 
 router.post('/', (req, res, _) => {
     const {
@@ -42,7 +72,7 @@ router.post('/', (req, res, _) => {
         withdrawDate
     })
     .then(async _ => {
-        const retorno = await calculaBalance(cryptoId, amount)
+        const retorno = await calculaBalance(cryptoId)
         res.status(201).json({
             error: retorno ? true : retorno,
             message: retorno ? 'Aconteceu um erro' : 'Resumo alterado'
@@ -64,7 +94,7 @@ router.delete('/:id', (req, res, _) => {
             }
         })
         .then(async _ => {
-            const retorno = await calculaBalance(withdraw.cryptoId, (withdraw.amount * -1))
+            const retorno = await calculaBalance(withdraw.cryptoId)
             res.status(201).json({
                 error: retorno ? true : retorno,
                 message: retorno ? 'Aconteceu um erro' : 'Resumo alterado'
